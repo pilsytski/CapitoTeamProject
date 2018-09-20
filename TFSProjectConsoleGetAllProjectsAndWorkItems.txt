@@ -1,0 +1,227 @@
+
+open nuget manager and install:
+1.pm> Install-Package System.Net.Http -Version 4.3.3
+2 pm>Install-Package Microsoft.VisualStudio.Services.Client -Version 15.112.1
+3 pm>Install-Package Microsoft.TeamFoundationServer.ExtendedClient
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.VisualStudio.Services.Client;
+using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.VisualStudio.Services.WebApi;
+
+using Microsoft.TeamFoundation.Client;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi;
+using Microsoft.VisualStudio.Services.Client;
+using Microsoft.VisualStudio.Services.Common;
+using Microsoft.TeamFoundation.Server;
+
+using Microsoft.TeamFoundation;
+
+using Microsoft.TeamFoundation.WorkItemTracking.Client;
+
+
+namespace TrainingTFSApp
+{
+    class Program
+    {
+        //public List<string> LoadProjectList()
+        //{
+        //    var tpc = TfsTeamProjectCollectionFactory.GetTeamProjectCollection(new Uri(tfsLocation));
+        //    var workItemStore = new WorkItemStore(tpc);
+        //    var projects = (from Project project in workItemStore.Projects select project.Name).ToList();
+
+        //    return projects;
+
+
+        //}
+
+        private static int GetOnlyUserStories(String url)//query for Tasks and User Stories only
+        {
+
+            TfsTeamProjectCollection tpc = new TfsTeamProjectCollection(new Uri(url));
+
+            
+
+            ICommonStructureService css = tpc.GetService<ICommonStructureService>();
+            ProjectInfo[] projects = css.ListProjects();
+            int count = 0;
+            foreach (var project in projects)
+            {
+
+
+
+
+                //string info = String.Empty;
+                string infoRoy = String.Empty;
+                WorkItemStore workItemStore = new WorkItemStore(tpc);
+                Query query = new Query(
+                workItemStore,
+                "select * from issue where System.TeamProject = @project and System.WorkItemType='User Story'",
+                new Dictionary<string, string>() { { "project", project.Name } }
+                 );
+               
+
+
+                var workItemCollection = query.RunQuery();
+
+                //run over all workitems and fiealds
+                foreach (Microsoft.TeamFoundation.WorkItemTracking.Client.WorkItem workItem in workItemCollection)
+                {
+                    count++;
+                    /*Get work item properties you are interested in*/
+
+
+                    // infoRoy += String.Format("State:{0}" + "\n", workItem.Fields[CoreField.State].Value);
+                    infoRoy = String.Format("ID:{0}, " + " " + "Title:{1}, " + "" + "State:{2}, " + "" + "Assigned To:{3}, " + "\n", workItem.Id, workItem.Fields[CoreField.Title].Value, workItem.Fields[CoreField.State].Value, workItem.Fields[CoreField.AssignedTo].Value);
+
+                    
+                    Console.WriteLine(infoRoy);
+                    infoRoy = String.Empty;
+
+                }
+
+
+            }
+            Console.WriteLine("Number of User Stories:"+ count);
+            Console.WriteLine("\n");
+
+            return 10;
+        }
+
+        private static int  GetOnlyTasks(String url)//query for Tasks and User Stories only
+            {
+
+            TfsTeamProjectCollection tpc = new TfsTeamProjectCollection(new Uri(url));
+
+            ICommonStructureService css = tpc.GetService<ICommonStructureService>();
+            ProjectInfo[] projects = css.ListProjects();
+            int count = 0;
+            foreach (var project in projects)
+            {
+
+
+
+
+                string info = String.Empty;
+                string infoRoy = String.Empty;
+                WorkItemStore workItemStore = new WorkItemStore(tpc);
+                Query query = new Query(
+                workItemStore,
+                "select * from issue where System.TeamProject = @project and System.WorkItemType='Task'",
+                new Dictionary<string, string>() { { "project", project.Name } }
+                 );
+                //and System.WorkitemType='User Story'
+
+
+                var workItemCollection = query.RunQuery();
+
+                //run over all workitems and fiealds
+                foreach (Microsoft.TeamFoundation.WorkItemTracking.Client.WorkItem workItem in workItemCollection)
+                {
+                    count++;
+                    /*Get work item properties you are interested in*/
+
+
+                    // infoRoy += String.Format("State:{0}" + "\n", workItem.Fields[CoreField.State].Value);
+                    infoRoy = String.Format("ID:{0}, " + " " + "Title:{1}, " + "" + "State:{2}, " + "" + "Assigned To:{3}, " + "\n", workItem.Id, workItem.Fields[CoreField.Title].Value, workItem.Fields[CoreField.State].Value, workItem.Fields[CoreField.AssignedTo].Value);
+
+                    //foreach (Microsoft.TeamFoundation.WorkItemTracking.Client.Field field in workItem.Fields)
+                    //{
+
+                    //    if (field.Name == "ID")//field.Name == "Assigned To" || field.Name == "ID" || field.Name == "State" || field.Name == "Title"
+                    //    {
+                    //        infoRoy = String.Format("ID:{0}" + "\n",field.Value);
+
+                    //        /*Get field value*/
+                    //        //info = String.Format("Field name: {0} " + " AND " + "Value: {1} +" + "AND" + "Project name:{2}" + "\n", field.Name, field.Value, project.Name);
+                    //        //infoRoy =String.Format("ID:{0}"+" "+"Title:{1}"+""+"State:{2}"+""+"Assigned To:{3}"+"\n",field.Id,field )
+                    //    }
+                    //    if(workItem.Fields[CoreField.State].Value!=null)
+                    //    {
+                    //        infoRoy += String.Format("State:{0}" + "\n", workItem.Fields[CoreField.State].Value);
+                    //    }
+
+                    //    if (field.Name == "Assigned To")
+                    //    {
+                    //        infoRoy += String.Format("Assigned To:{0}" + "\n", field.Value);
+                    //    }
+
+                    //    if (field.Name == "Title")
+                    //    {
+                    //        infoRoy += String.Format("Title:{0}" + "\n", field.Value);
+                    //    }
+
+                    //    //Console.WriteLine(info);
+                    //}
+                    Console.WriteLine(infoRoy);
+                    infoRoy = String.Empty;
+
+                }
+
+
+            }
+            Console.WriteLine("Number of Tasks:" + count);
+            Console.WriteLine("\n");
+
+            return 10;
+            }
+
+            private static ProjectInfo[] GetAllProjectsNameList(String url)
+            {
+            TfsTeamProjectCollection tpc = new TfsTeamProjectCollection(new Uri(url));
+            
+            ICommonStructureService css = tpc.GetService<ICommonStructureService>();
+            ProjectInfo[] projects = css.ListProjects();
+            int count = 0;
+            foreach (var project in projects)
+            {
+
+
+
+
+                string info = String.Empty;
+                WorkItemStore workItemStore = new WorkItemStore(tpc);
+                Query query = new Query(
+                workItemStore,
+                "select * from issue where System.TeamProject = @project",
+                new Dictionary<string, string>() { { "project", project.Name } }
+                 );
+
+
+
+                var workItemCollection = query.RunQuery();
+
+                //run over all workitems and fiealds
+                foreach (Microsoft.TeamFoundation.WorkItemTracking.Client.WorkItem workItem in workItemCollection)
+                {
+                    count++;
+                    /*Get work item properties you are interested in*/
+                    foreach (Microsoft.TeamFoundation.WorkItemTracking.Client.Field field in workItem.Fields)
+                    {
+                        /*Get field value*/
+                        info = String.Format("Field name: {0} " +" AND "+"Value: {1} +" +"AND"+"Project name:{2}"+"\n", field.Name, field.Value,project.Name);
+                        Console.WriteLine(info);
+                    }
+                }
+
+              
+                }
+            Console.WriteLine("Number of bugs WI:" + count);
+
+            return projects;
+        }
